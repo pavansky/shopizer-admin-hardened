@@ -26,8 +26,11 @@ export class GlobalHttpInterceptorService implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler):
     Observable<HttpEvent<any>> {
 
+    // Retry once only for idempotent reads. Retrying a POST such as capture,
+    // refund or checkout could perform the operation twice.
+    const retries = req.method === 'GET' ? 1 : 0;
     return next.handle(req).pipe(
-      retry(1),
+      retry(retries),
       catchError((error) => {
         let errorMessage = '';
         console.log('In error ** ' + error.status);
