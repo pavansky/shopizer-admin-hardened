@@ -1,16 +1,14 @@
 # build env
-FROM node:12.8.0 as builder
+FROM node:14-bullseye AS builder
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm ci --legacy-peer-deps --no-audit --no-fund
 COPY . .
 
 # Build Angular Application in Production
-RUN export NODE_OPTIONS=--max-old-space-size=4096
 RUN node --max_old_space_size=4096 ./node_modules/@angular/cli/bin/ng build --prod
-RUN ls -al
 
 #### STAGE 2
 #### Deploying the application
