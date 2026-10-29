@@ -26,7 +26,7 @@ export class OrderDetailsComponent implements OnInit {
   orderDetailsData: any;
   historyListData: Array<any> = [];
   transactionListData: Array<any> = [];
-  statusList: Array<any> = [{ 'name': 'ORDERED', 'id': 'ORDERED' }, { 'name': 'PROCESSED', 'id': 'PROCESSED' }, { 'name': 'DELIVERED', 'id': 'DELIVERED' }, { 'name': 'REFUNDED', 'id': 'REFUNDED' }, { 'name': 'CANCELED', 'id': 'CANCELED' }]
+  statusList: Array<any> = [{ 'name': 'PAYMENT_PENDING', 'id': 'PAYMENT_PENDING' }, { 'name': 'PAYMENT_REVIEW', 'id': 'PAYMENT_REVIEW' }, { 'name': 'PAYMENT_FAILED', 'id': 'PAYMENT_FAILED' }, { 'name': 'ORDERED', 'id': 'ORDERED' }, { 'name': 'PROCESSED', 'id': 'PROCESSED' }, { 'name': 'DELIVERED', 'id': 'DELIVERED' }, { 'name': 'REFUNDED', 'id': 'REFUNDED' }, { 'name': 'CANCELED', 'id': 'CANCELED' }]
   public scrollbarOptions = { axis: 'y', theme: 'minimal-dark' };
   info = {
     userName: '',

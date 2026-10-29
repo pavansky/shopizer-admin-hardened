@@ -70,7 +70,7 @@ export class ConfigureComponent implements OnInit {
     } else if (paymenttype == 'beanstream') {
       this.formData = beanStreamData;
       this.paymentType = "Beanstream";
-    } else if (paymenttype == 'stripe') {
+    } else if (paymenttype == 'stripe' || paymenttype == 'stripe3') {
       this.formData = stripeData;
       this.paymentType = "Stripe";
     } else if (paymenttype == 'paytm') {

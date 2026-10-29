@@ -50,6 +50,16 @@
     },
     {
         "type": "text",
+        "label": "Webhook signing secret",
+        "placeholder": "whsec_... (from the Stripe webhook endpoint)",
+        "name": "webhookSecret",
+        "objectKey": "integrationKeys",
+        "isRequired": false,
+        "optionData": [],
+        "value": ""
+    },
+    {
+        "type": "text",
         "label": "Publishable key",
         "placeholder": "Enter a publishable key",
         "name": "publishableKey",

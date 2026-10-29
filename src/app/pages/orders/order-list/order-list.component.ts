@@ -210,6 +210,9 @@ export class OrderListComponent implements OnInit {
             config: {
               selectText: this.translate.instant('ORDER.SHOWALL'),
               list: [
+                { value: 'PAYMENT_PENDING', title: this.translate.instant('ORDER.PAYMENT_PENDING') },
+                { value: 'PAYMENT_REVIEW', title: this.translate.instant('ORDER.PAYMENT_REVIEW') },
+                { value: 'PAYMENT_FAILED', title: this.translate.instant('ORDER.PAYMENT_FAILED') },
                 { value: 'ORDERED', title: this.translate.instant('ORDER.ORDERED') },
                 { value: 'PROCESSED', title: this.translate.instant('ORDER.PROCESSED') },
                 { value: 'DELIVERED', title: this.translate.instant('ORDER.DELIVERED') },
