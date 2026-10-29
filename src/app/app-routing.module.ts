@@ -7,7 +7,8 @@ import { ResetPasswordComponent } from "./pages/auth/resetpassword/reset.compone
 const routes: Routes = [
   { path: "auth", loadChildren: "app/pages/auth/auth.module#AuthModule" },
   { path: "errorPage", component: ErrorComponent },
-  { path: "user/:id/reset/:id", component: ResetPasswordComponent },
+  // the backend sends links of the form <returnUrl>/user/<store>/reset/<token>
+  { path: "user/:store/reset/:id", component: ResetPasswordComponent },
   {
     path: "pages",
     loadChildren: "app/pages/pages.module#PagesModule",

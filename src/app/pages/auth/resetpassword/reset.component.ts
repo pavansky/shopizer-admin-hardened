@@ -15,6 +15,7 @@ export class ResetPasswordComponent implements OnInit {
   passwordType = 0;
   newPasswordType = 0;
   token: any;
+  store = 'DEFAULT';
   loadingList: boolean = false;
   isValid: boolean = true;
   user = {
@@ -30,13 +31,14 @@ export class ResetPasswordComponent implements OnInit {
   ) {
     this.route.params.subscribe(params => {
       console.log(params)
-      this.token = params['id']; // (+) converts string 'id' to a number
+      this.token = params['id'];
+      this.store = params['store'] || 'DEFAULT';
     });
   }
 
   ngOnInit() {
     this.loadingList = true;
-    this.authService.validateResetToken(this.token)
+    this.authService.validateResetToken(this.token, this.store)
       .subscribe(res => {
         this.loadingList = false;
         this.isValid = true;
@@ -69,7 +71,7 @@ export class ResetPasswordComponent implements OnInit {
     this.loadingList = true;
     this.errorMessage = '';
     let param = { 'password': this.user.password, 'repeatPassword': this.user.newpassword }
-    this.authService.resetPassword(this.token, param)
+    this.authService.resetPassword(this.token, param, this.store)
       .subscribe(res => {
         this.loadingList = false;
         this.user = {

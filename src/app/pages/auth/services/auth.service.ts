@@ -49,11 +49,13 @@ export class AuthService {
   forgot(username: string, returnUrl: string): Observable<any> {
     return this.crudService.post('/v1/user/password/reset/request', { username, returnUrl });
   }
-  validateResetToken(token): Observable<any> {
-    return this.crudService.get('/v1/user/DEFAULT/reset/' + token);
+  // Reset tokens are scoped to a store by the backend. The reset link carries
+  // the store code in its path; DEFAULT is only a fallback.
+  validateResetToken(token, store: string = 'DEFAULT'): Observable<any> {
+    return this.crudService.get('/v1/user/' + encodeURIComponent(store) + '/reset/' + token);
   }
-  resetPassword(token, param): Observable<any> {
-    return this.crudService.post('/v1/user/DEFAULT/password/' + token, param);
+  resetPassword(token, param, store: string = 'DEFAULT'): Observable<any> {
+    return this.crudService.post('/v1/user/' + encodeURIComponent(store) + '/password/' + token, param);
   }
   checkIfStoreExist(code): Observable<any> {
     const params = {
