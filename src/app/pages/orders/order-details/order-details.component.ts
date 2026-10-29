@@ -273,7 +273,7 @@ export class OrderDetailsComponent implements OnInit {
         // this.shippingStateData = data;
       }, error => {
         this.loadingList = false;
-        this.toastr.error("Order has been refunded fail");
+        this.toastr.error((error && error.error && error.error.message) || "Refund failed");
       });
   }
   onClickCapture() {
@@ -286,7 +286,7 @@ export class OrderDetailsComponent implements OnInit {
         // this.shippingStateData = data;
       }, error => {
         this.loadingList = false;
-        this.toastr.error("Order has been captured fail");
+        this.toastr.error((error && error.error && error.error.message) || "Capture failed");
       });
   }
   showDialog(value) {

@@ -46,8 +46,9 @@ export class OrdersService {
   getNextTransaction(orderID): Observable<any> {
     return this.crudService.get('/v1/private/orders/' + orderID + '/payment/nextTransaction');
   }
-  refundOrder(orderID): Observable<any> {
-    return this.crudService.post('/v1/private/orders/' + orderID + '/refund', {});
+  // amount is optional; without it the backend refunds the remaining captured amount
+  refundOrder(orderID, amount?: number): Observable<any> {
+    return this.crudService.post('/v1/private/orders/' + orderID + '/refund', amount != null ? { amount } : {});
   }
   captureOrder(orderID): Observable<any> {
     return this.crudService.post('/v1/private/orders/' + orderID + '/capture', {});

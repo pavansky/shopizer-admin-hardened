@@ -99,7 +99,8 @@ export class OrderListComponent implements OnInit {
     };
   }
   getOrderList() {
-    this.params.page = this.currentPage;
+    // the pager is 1-based, the orders API is 0-based
+    this.params.page = this.currentPage - 1;
 
     this.loadingList = true;
     this.ordersService.getOrders(this.params)
