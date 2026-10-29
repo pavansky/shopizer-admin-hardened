@@ -15,6 +15,8 @@ A fork of the [Shopizer Angular admin](https://github.com/shopizer-ecommerce/sho
 | Password reset | Route named both segments `:id`, and the service hard-coded store DEFAULT | Store read from the link path |
 | Runtime config | `env.js` malformed. Fallback `/api/api/v1` and French | Valid `env.js`. `/api` and English |
 | Refund and capture | Generic "failed" toast | Server message shown. Refund sends an optional amount |
+| Payment statuses | Only fulfilment statuses | PAYMENT_PENDING, PAYMENT_FAILED and PAYMENT_REVIEW in the list filter and status dropdown |
+| Stripe settings | No webhook secret | Webhook signing secret field, also used for the stripe3 module |
 
 Every change is one commit on top of the tag `baseline-upstream`.
 
