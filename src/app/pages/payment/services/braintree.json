@@ -88,11 +88,11 @@
         "optionData": [
             {
                 "label": "Pre-authorization",
-                "value": "AUTHORIZECAPTURE"
+                "value": "AUTHORIZE"
             },
             {
                 "label": "Sale",
-                "value": "SALE"
+                "value": "AUTHORIZECAPTURE"
             }
         ],
         "value": ""
