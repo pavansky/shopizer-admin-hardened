@@ -59,7 +59,7 @@
         "value": ""
     },
     {
-        "type": "text",
+        "type": "password",
         "label": "Private key",
         "placeholder": "Enter a private key",
         "name": "private_key",

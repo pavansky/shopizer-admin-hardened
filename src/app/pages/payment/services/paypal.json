@@ -59,7 +59,7 @@
         "value": ""
     },
     {
-        "type": "text",
+        "type": "password",
         "label": "PayPal API signature",
         "placeholder": "Enter a signature",
         "name": "signature",

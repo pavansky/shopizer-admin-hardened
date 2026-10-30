@@ -39,7 +39,7 @@
         "value": ""
     },
     {
-        "type": "text",
+        "type": "password",
         "label": "Secret key",
         "placeholder": "Enter a secret key",
         "name": "secretKey",
@@ -49,7 +49,7 @@
         "value": ""
     },
     {
-        "type": "text",
+        "type": "password",
         "label": "Webhook signing secret",
         "placeholder": "whsec_... (from the Stripe webhook endpoint)",
         "name": "webhookSecret",
