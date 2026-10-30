@@ -64,6 +64,10 @@ export class OrdersService {
   recheckPayment(orderID): Observable<any> {
     return this.crudService.post('/v1/private/orders/' + orderID + '/payment/recheck', {});
   }
+  // PAYMENT_REVIEW only: a person confirms a payment the gateway cannot report; the reason is required
+  confirmPayment(orderID, reason: string, reference?: string): Observable<any> {
+    return this.crudService.post('/v1/private/orders/' + orderID + '/payment/confirm', { reason, reference });
+  }
   captureOrder(orderID): Observable<any> {
     return this.crudService.post('/v1/private/orders/' + orderID + '/capture', {});
   }

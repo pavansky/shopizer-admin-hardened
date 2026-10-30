@@ -274,6 +274,28 @@ export class OrderDetailsComponent implements OnInit {
         this.toastr.error(this.errorMessage(error, 'Payment re-check failed'));
       });
   }
+  onClickConfirmPayment() {
+    const reason = window.prompt('Why is the payment of order ' + this.orderID
+      + ' known to be received (for example: money order cashed, charge seen in the gateway dashboard)?');
+    if (reason == null) {
+      return;
+    }
+    if (!reason.trim()) {
+      this.toastr.error('A reason is required to confirm a payment');
+      return;
+    }
+    const reference = window.prompt('Gateway or bank reference of the payment (optional)') || '';
+    this.loadingList = true;
+    this.ordersService.confirmPayment(this.orderID, reason.trim(), reference.trim() || undefined)
+      .subscribe(data => {
+        this.loadingList = false;
+        this.toastr.success(data.message || 'Payment confirmed');
+        this.refreshOrder();
+      }, error => {
+        this.loadingList = false;
+        this.toastr.error(this.errorMessage(error, 'Payment confirmation failed'));
+      });
+  }
   updateOrder() {
     this.loadingList = true;
     let param = {

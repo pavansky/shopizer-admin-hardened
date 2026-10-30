@@ -22,6 +22,9 @@
     <div class="content_spacing" *ngIf="lifecycle?.paymentRecheck">
       <button type="button" nbButton class="capture_button" (click)="onClickRecheckPayment()">Re-check payment</button>
     </div>
+    <div class="content_spacing" *ngIf="lifecycle?.paymentConfirm">
+      <button type="button" nbButton class="capture_button" (click)="onClickConfirmPayment()">Confirm payment received</button>
+    </div>
     <div class="content_spacing" *ngIf="lifecycle?.cancelable">
       <button type="button" nbButton class="refund_button" (click)="onClickCancelOrder()">Cancel order</button>
     </div>
@@ -303,7 +306,7 @@
                   <label>{{'ORDER_FORM.PAYMENT_MODE' | translate}}</label>
                   <label class="boldTxt">{{orderDetailsData.paymentType}} - {{orderDetailsData.paymentModule}}</label>
                   <label class="status">{{'ORDER_FORM.SELECT_STATUS' | translate}}</label>
-                  <label *ngIf="statusList.length == 0">No status change available from {{orderDetailsData.orderStatus}}<span *ngIf="lifecycle?.paymentRecheck">: the payment is not settled, use Re-check payment or Cancel order</span></label>
+                  <label *ngIf="statusList.length == 0">No status change available from {{orderDetailsData.orderStatus}}<span *ngIf="lifecycle?.paymentRecheck">: the payment is not settled, use Re-check payment<span *ngIf="lifecycle?.paymentConfirm">, Confirm payment received</span> or Cancel order</span></label>
                   <nb-select *ngIf="statusList.length > 0" placeholder="{{'ORDER_FORM.SELECT_STATUS' | translate}}"
                     outline shape="rectangle" [(ngModel)]="statusFields.status" name="status" required>
                     <nb-option *ngFor="let status of statusList" [value]="status.id">{{ status.name }}
