@@ -26,7 +26,10 @@ export class OrderDetailsComponent implements OnInit {
   orderDetailsData: any;
   historyListData: Array<any> = [];
   transactionListData: Array<any> = [];
-  statusList: Array<any> = [{ 'name': 'PAYMENT_PENDING', 'id': 'PAYMENT_PENDING' }, { 'name': 'PAYMENT_REVIEW', 'id': 'PAYMENT_REVIEW' }, { 'name': 'PAYMENT_FAILED', 'id': 'PAYMENT_FAILED' }, { 'name': 'ORDERED', 'id': 'ORDERED' }, { 'name': 'PROCESSED', 'id': 'PROCESSED' }, { 'name': 'DELIVERED', 'id': 'DELIVERED' }, { 'name': 'REFUNDED', 'id': 'REFUNDED' }, { 'name': 'CANCELED', 'id': 'CANCELED' }]
+  // filled from GET /transitions: only the moves PUT /status accepts from the current status
+  statusList: Array<any> = []
+  // what the backend allows next for this order (cancel, payment re-check, refundable amount)
+  lifecycle: any = null
   public scrollbarOptions = { axis: 'y', theme: 'minimal-dark' };
   info = {
     userName: '',
@@ -108,6 +111,27 @@ export class OrderDetailsComponent implements OnInit {
     }
     this.getHistory();
     this.getNextTransaction();
+    this.getTransitions();
+  }
+  // reloads everything that depends on the order status after a command
+  refreshOrder() {
+    this.getOrderDetails();
+    this.getHistory();
+    this.getNextTransaction();
+    this.getTransitions();
+  }
+  getTransitions() {
+    this.ordersService.getTransitions(this.orderID)
+      .subscribe(data => {
+        this.lifecycle = data;
+        this.statusList = (data.statusUpdates || []).map(s => ({ name: s, id: s }));
+      }, error => {
+        this.lifecycle = null;
+        this.statusList = [];
+      });
+  }
+  errorMessage(error, fallback: string): string {
+    return (error && error.error && error.error.message) || fallback;
   }
   getNextTransaction() {
     this.ordersService.getNextTransaction(this.orderID)
@@ -193,26 +217,83 @@ export class OrderDetailsComponent implements OnInit {
   onChangeStateShipping(value) {
 
   }
+  // changes Order.status through PUT /status, then keeps the comment as a history note
   updateHistory() {
     this.loadingList = true;
-    let param = {
-      comments: this.statusFields.comments,
-      date: moment().format('yyyy-MM-DD'),
-      status: this.statusFields.status
-    }
-    this.ordersService.addHistory(this.orderID, param)
-      .subscribe(data => {
-        this.loadingList = false;
-        this.toastr.success("History Status has been submitted successfully");
-        this.statusFields = {
-          comments: '',
-          status: ''
+    const status = this.statusFields.status;
+    const comments = this.statusFields.comments;
+    this.ordersService.updateStatus(this.orderID, status)
+      .subscribe(() => {
+        if (!comments) {
+          this.statusUpdated();
+          return;
         }
-
+        const note = { comments, date: moment().format('YYYY-MM-DD'), status };
+        this.ordersService.addHistory(this.orderID, note)
+          .subscribe(() => this.statusUpdated(), error => {
+            this.loadingList = false;
+            this.toastr.error(this.errorMessage(error, 'Status updated, but the comment was not saved'));
+            this.refreshOrder();
+          });
       }, error => {
         this.loadingList = false;
-        this.toastr.success("History Status has been submitted fail");
-
+        this.toastr.error(this.errorMessage(error, 'Status update failed'));
+      });
+  }
+  statusUpdated() {
+    this.loadingList = false;
+    this.toastr.success('Order status has been updated');
+    this.statusFields = { comments: '', status: '' };
+    this.refreshOrder();
+  }
+  onClickCancelOrder() {
+    if (!window.confirm('Cancel order ' + this.orderID + '? Any captured payment is refunded and the stock is returned.')) {
+      return;
+    }
+    this.loadingList = true;
+    this.ordersService.cancelOrder(this.orderID, this.statusFields.comments)
+      .subscribe(data => {
+        this.loadingList = false;
+        this.toastr.success(data.message || 'Order has been canceled');
+        this.statusFields = { comments: '', status: '' };
+        this.refreshOrder();
+      }, error => {
+        this.loadingList = false;
+        this.toastr.error(this.errorMessage(error, 'Cancel failed'));
+      });
+  }
+  onClickRecheckPayment() {
+    this.loadingList = true;
+    this.ordersService.recheckPayment(this.orderID)
+      .subscribe(data => {
+        this.loadingList = false;
+        this.toastr.success(data.message || 'Payment re-checked');
+        this.refreshOrder();
+      }, error => {
+        this.loadingList = false;
+        this.toastr.error(this.errorMessage(error, 'Payment re-check failed'));
+      });
+  }
+  onClickConfirmPayment() {
+    const reason = window.prompt('Why is the payment of order ' + this.orderID
+      + ' known to be received (for example: money order cashed, charge seen in the gateway dashboard)?');
+    if (reason == null) {
+      return;
+    }
+    if (!reason.trim()) {
+      this.toastr.error('A reason is required to confirm a payment');
+      return;
+    }
+    const reference = window.prompt('Gateway or bank reference of the payment (optional)') || '';
+    this.loadingList = true;
+    this.ordersService.confirmPayment(this.orderID, reason.trim(), reference.trim() || undefined)
+      .subscribe(data => {
+        this.loadingList = false;
+        this.toastr.success(data.message || 'Payment confirmed');
+        this.refreshOrder();
+      }, error => {
+        this.loadingList = false;
+        this.toastr.error(this.errorMessage(error, 'Payment confirmation failed'));
       });
   }
   updateOrder() {
@@ -251,7 +332,7 @@ export class OrderDetailsComponent implements OnInit {
         // this.shippingStateData = data;
       }, error => {
         this.loadingList = false;
-        this.toastr.success("Order has been updated fail");
+        this.toastr.error(this.errorMessage(error, "Order update failed"));
       });
   }
   onPhoneChange() {
@@ -263,17 +344,29 @@ export class OrderDetailsComponent implements OnInit {
   goToback() {
     this.router.navigate(['pages/orders/order-list']);
   }
+  // asks for the amount, defaulting to what is still refundable; a full refund also returns the stock
   onClickRefund() {
+    const remaining = this.lifecycle && this.lifecycle.refundable != null ? Number(this.lifecycle.refundable) : null;
+    const currency = (this.lifecycle && this.lifecycle.currency) || (this.orderDetailsData && this.orderDetailsData.currency) || '';
+    const answer = window.prompt('Refund amount (' + currency + ')' + (remaining != null ? ', at most ' + remaining.toFixed(2) : ''),
+      remaining != null ? remaining.toFixed(2) : '');
+    if (answer === null) {
+      return;
+    }
+    const amount = Number(String(answer).trim());
+    if (!(amount > 0) || (remaining != null && amount > remaining)) {
+      this.toastr.error('Enter an amount greater than 0' + (remaining != null ? ' and at most ' + remaining.toFixed(2) : ''));
+      return;
+    }
     this.loadingList = true;
-    this.ordersService.refundOrder(this.orderID)
+    this.ordersService.refundOrder(this.orderID, amount)
       .subscribe(data => {
-        console.log(data)
         this.loadingList = false;
         this.toastr.success("Order has been refunded successfully");
-        // this.shippingStateData = data;
+        this.refreshOrder();
       }, error => {
         this.loadingList = false;
-        this.toastr.error((error && error.error && error.error.message) || "Refund failed");
+        this.toastr.error(this.errorMessage(error, "Refund failed"));
       });
   }
   onClickCapture() {
@@ -283,7 +376,7 @@ export class OrderDetailsComponent implements OnInit {
         console.log()
         this.loadingList = false;
         this.toastr.success("Order has been captured successfully");
-        // this.shippingStateData = data;
+        this.refreshOrder();
       }, error => {
         this.loadingList = false;
         this.toastr.error((error && error.error && error.error.message) || "Capture failed");

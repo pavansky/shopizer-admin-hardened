@@ -19,6 +19,15 @@
         |
         translate}}</button>
     </div>
+    <div class="content_spacing" *ngIf="lifecycle?.paymentRecheck">
+      <button type="button" nbButton class="capture_button" (click)="onClickRecheckPayment()">Re-check payment</button>
+    </div>
+    <div class="content_spacing" *ngIf="lifecycle?.paymentConfirm">
+      <button type="button" nbButton class="capture_button" (click)="onClickConfirmPayment()">Confirm payment received</button>
+    </div>
+    <div class="content_spacing" *ngIf="lifecycle?.cancelable">
+      <button type="button" nbButton class="refund_button" (click)="onClickCancelOrder()">Cancel order</button>
+    </div>
     <div class="content_spacing" *ngIf="transactionType == 'CAPTURE'">
       <button type="button" nbButton class="capture_button" (click)="onClickCapture()">{{
         'ORDER_FORM.CAPTURE' |
@@ -287,7 +296,7 @@
                       <tr *ngFor="let total of orderDetailsData.totals">
                         <td></td>
                         <td colspan="2">{{total.module}}</td>
-                        <td class="boldTxt">US${{total.value}}</td>
+                        <td class="boldTxt">{{total.value | currency: orderDetailsData.currency : 'symbol'}}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -297,7 +306,8 @@
                   <label>{{'ORDER_FORM.PAYMENT_MODE' | translate}}</label>
                   <label class="boldTxt">{{orderDetailsData.paymentType}} - {{orderDetailsData.paymentModule}}</label>
                   <label class="status">{{'ORDER_FORM.SELECT_STATUS' | translate}}</label>
-                  <nb-select *ngIf="billingCountry.length > 0" placeholder="{{'ORDER_FORM.SELECT_STATUS' | translate}}"
+                  <label *ngIf="statusList.length == 0">No status change available from {{orderDetailsData.orderStatus}}<span *ngIf="lifecycle?.paymentRecheck">: the payment is not settled, use Re-check payment<span *ngIf="lifecycle?.paymentConfirm">, Confirm payment received</span> or Cancel order</span></label>
+                  <nb-select *ngIf="statusList.length > 0" placeholder="{{'ORDER_FORM.SELECT_STATUS' | translate}}"
                     outline shape="rectangle" [(ngModel)]="statusFields.status" name="status" required>
                     <nb-option *ngFor="let status of statusList" [value]="status.id">{{ status.name }}
                     </nb-option>
@@ -307,7 +317,7 @@
                   <label>{{'ORDER_FORM.STATUS_COMMENT' | translate}}</label>
                   <textarea id="" name="" rows="10" cols="90" class="txtArea" [(ngModel)]="statusFields.comments" name="comments"
                     required></textarea>
-                  <button type="button" (click)="updateHistory()" nbButton class="success_button lastBtn" [disabled]="statusFields.comments == '' || statusFields.status == ''">{{'ORDER_FORM.UPDATE_STATUS'
+                  <button type="button" (click)="updateHistory()" nbButton class="success_button lastBtn" [disabled]="statusFields.status == ''">{{'ORDER_FORM.UPDATE_STATUS'
                     | translate}}</button>
                 </div>
               </div>
