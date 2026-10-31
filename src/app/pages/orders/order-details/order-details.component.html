@@ -34,8 +34,8 @@
         translate}}</button>
     </div>
     <div class="content_spacing">
-      <button type="button" nbButton class="cancel_button" (click)="goToback()">{{ 'ORDER_FORM.CANCLE'
-        | translate}}</button>
+      <!-- "Back" leaves the page. It used to read "Cancel", right next to "Cancel order", which refunds money. -->
+      <button type="button" nbButton class="cancel_button" (click)="goToback()">Back to orders</button>
     </div>
     <div class="content_spacing">
       <button type="button" nbButton class="success_button" [disabled]="!orderForm.form.valid" (click)="updateOrder()">{{'COMMON.SAVE'

@@ -10,9 +10,20 @@
 
 
   .main_header {
+    // Up to six actions (refund, re-check, confirm, cancel order, back, save): wrap them
+    // under the title instead of overflowing into the sidebar.
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    row-gap: 12px;
+    height: auto;
+
     .page_title {
-      margin-top: -25px;
+      // the shared header style positions titles absolutely; here the title takes its own row
+      position: static;
+      margin: 0;
       font-weight: 600;
+      flex: 1 1 100%;
     }
 
     .content_spacing {
